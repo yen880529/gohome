@@ -1,342 +1,192 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>生日小謎語</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>下班倒數</title>
   <style>
-    :root{
-      --bg: #0f1020;
-      --card: #17182b;
-      --ink: #f6f7fb;
-      --muted: #c9cbe2;
-      --accent: #8b9bff;
-      --ok: #34d399;
-      --err: #f87171;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 16px;
+    * {
+      box-sizing: border-box;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #253 0%, transparent 60%),
-        radial-gradient(1200px 600px at 110% 110%, #235 0%, transparent 60%),
-        linear-gradient(135deg, #0f1020, #10122b 60%, #0e0f22);
-      color:var(--ink);
-      font: 16px/1.6 system-ui, -apple-system, "Noto Sans TC", Segoe UI, Roboto, Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+      color: #fff;
+      overflow: hidden;
     }
-    .wrap{max-width:900px;margin:40px auto;padding:0 20px}
-    header{ text-align:center;margin-bottom:22px; }
-    h1{font-size:28px;margin:0 0 6px;letter-spacing:.5px}
-    .sub{color:var(--muted);font-size:14px}
-    .progress{ margin:18px auto 28px;max-width:560px;height:10px;background:#2a2b44;border-radius:999px;overflow:hidden;box-shadow:var(--shadow) }
-    .bar{height:100%;width:0;background:linear-gradient(90deg,#78ffd6,#a8bfff);transition:width .4s ease}
 
-    /* 單欄直向卡片 */
-    .grid{ display:block }
-    .card{ background:var(--card);border:1px solid #232544;border-radius:var(--radius); padding:18px 16px;box-shadow:var(--shadow); margin-bottom:18px }
+    .container {
+      text-align: center;
+      padding: 40px 24px;
+      width: min(90%, 700px);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
 
-    .card h3{margin:0 0 8px}
-    .riddle{color:var(--muted);margin:0 0 14px;white-space:pre-wrap}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    input[type="text"], input[type="password"]{ flex:1;min-width:180px; background:#0f1025;border:1px solid #2b2d52;color:var(--ink); padding:12px 14px;border-radius:12px;outline:none;font-size:16px }
-    button{ background:linear-gradient(90deg,#7aa2ff,#8b9bff); color:#0c0d1c;border:none;padding:10px 14px;border-radius:12px;font-weight:700; cursor:pointer;box-shadow:var(--shadow);transition:transform .05s ease }
-    button:active{transform:translateY(1px)}
-    .hint{font-size:13px;color:#aab; margin-top:8px}
-    .status{font-size:13px;margin-left:auto}
-    .ok{color:var(--ok)}
-    .err{color:var(--err)}
-    footer{opacity:.75;text-align:center;margin:28px 0 60px;font-size:13px}
+    .title {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
 
-    /* 完成覆蓋層 */
-    .done{ position:fixed;inset:0;display:none;place-items:center; background:radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,.06), transparent 60%), linear-gradient(135deg,#11122a,#0c0d1c 60%, #0a0b18); z-index:20 }
-    .done.show{display:grid}
-    .sheet{ text-align:center;max-width:760px;margin:0 20px; background:rgba(255,255,255,.06);backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,.12); border-radius:24px;padding:28px 22px;box-shadow:var(--shadow) }
-    .sheet h2{font-size:34px;margin:0 0 8px}
-    .sheet p{color:var(--muted);margin:0 0 16px}
-    .cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
-    .ghost{ background:transparent;color:var(--ink);border:1px solid #3a3d70 }
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.85;
+      margin-bottom: 30px;
+    }
 
-    /* 簡易彩帶 */
-    .confetti{ position:fixed;top:-10px;width:10px;height:14px;border-radius:2px;opacity:.9; animation: fall linear forwards; }
-    @keyframes fall{ to{ transform:translateY(105vh) rotate(720deg); opacity:1 } }
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
 
-    /* 解鎖區與內容區 */
-    .lock{padding:8px 0 0}
-    .content{ display:none; overflow:hidden; transition:max-height .35s ease }
-    .content.show{ display:block }
+    .time-box {
+      min-width: 120px;
+      padding: 20px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .number {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .label {
+      font-size: 16px;
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+
+    .status {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 10px;
+      color: #93c5fd;
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 14px;
+      opacity: 0.6;
+    }
+
+    .pulse {
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(147, 197, 253, 0.25);
+      }
+      50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 22px rgba(147, 197, 253, 0.8);
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>生日小謎語 · Riddle for You</h1>
-      <div class="sub">解開 4 把鑰匙，讓慶祝儀式啟動 ✨</div>
-      <div class="progress"><div class="bar" id="bar"></div></div>
-      <button id="resetAll" style="margin-top:8px">重置測試</button>
-    </header>
+  <div class="container">
+    <div class="title pulse">距離回到溫暖小窩還有</div>
+    <div class="subtitle" id="targetText">正在計算下班時間...</div>
 
-    <main class="grid" id="grid"><!-- cards 動態注入 --></main>
-    <footer>小提醒：中文數字、分隔符（- / . 空格）都能識別；答案不分全形半形。題目需輸入「啟動密碼」後才會顯示。</footer>
+    <div class="countdown">
+      <div class="time-box">
+        <div class="number" id="hours">00</div>
+        <div class="label">小時</div>
+      </div>
+      <div class="time-box">
+        <div class="number" id="minutes">00</div>
+        <div class="label">分鐘</div>
+      </div>
+      <div class="time-box">
+        <div class="number" id="seconds">00</div>
+        <div class="label">秒</div>
+      </div>
+    </div>
+
+    <div class="status" id="status">恭喜老婆寶寶大人教授+博士快下班了。</div>
+    <div class="footer">Countdown to 5:00 PM</div>
   </div>
 
-  <!-- 完成頁 -->
-  <div class="done" id="done">
-    <div class="sheet">
-      <h2 id="celebrationTitle">生日快樂！</h2>
-      <p id="celebrationMsg">願今天的每個瞬間，都被你最喜歡的光包圍。</p>
-      <div class="cta">
-        <button id="replay">再次撒花 🎉</button>
-        <button class="ghost" id="back">回到謎題</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    function getNextFivePM() {
+      const now = new Date();
+      const target = new Date();
 
-<script>
-/* ==================== 可調整的設定 ==================== */
-const CONFIG = {
-  celebrantName: "寶貝",
-  celebrationTitle: "生日快樂，寶貝！",
-  celebrationMsg: "謝謝你來到我的世界，讓平凡的日子都有了光。願我們把今天的歡笑，存進明天的口袋。",
+      target.setHours(17, 0, 0, 0);
 
-  // "啟動密碼"（每題各自）：建議自行修改
-  // ⚠ 注意：此頁為前端，密碼會出現在原始碼中，僅作遊戲用途，非安全設計。
-  unlockCodes: {
-    1: "luluyen",   // 謎題一的啟動密碼
-    2: "month9",   // 謎題二
-    3: "ily8",     // 謎題三
-    4: "lucky4"    // 謎題四
-  },
-
-  // 謎題清單（題目預設不顯示；解鎖後才顯示）
-  puzzles: [
-    {
-      id: 1,
-      title: "謎題一：日月合一",
-      riddle:
-`我們初次相遇的時刻， 是寒風未散的清晨五點。 夜裡透著凍人的冷， 卻因彼此的靠近， 彷彿太陽與月亮合而為一，化作一把鑰匙。`,
-      placeholder: "",
-      accepted: ["212"],
-      hint: "把『月份』和『日期』黏在一起，不用空格。"
-    },
-    {
-      id: 2,
-      title: "謎題二：屬於你的季節",
-      riddle:
-`屬於妳的那個月，風也因妳而溫柔。\n請告訴我，那是第幾個月。`,
-      placeholder: "例如：9 或 九",
-      accepted: ["9"],
-      hint: "她的生日月份。"
-    },
-    {
-      id: 3,
-      title: "謎題三：我想你八遍",
-      riddle:
-`若把 “I love you” 的字母逐一數過，\n我會數到幾？`,
-      placeholder: "例如：8 或 八",
-      accepted: ["8"],
-      hint: "I(1) L(2) O(3) V(4) E(5)  (空格)略過，Y(6) O(7) U(8)。"
-    },
-    {
-      id: 4,
-      title: "謎題四：我們的幸運數字",
-      riddle:
-`有個數字一路跟著我們，出現在紀念日，也躲在未來的約定裡。`,
-      placeholder: "例如：4 或 四",
-      accepted: ["4"],
-      hint: "改成你們的幸運數字或暗號。"
-    }
-  ]
-};
-/* ===================================================== */
-
-// 進度持久化（可清空 localStorage 以重來）
-const KEY = "birthday-riddle-progress-v2"; // v2：加入解鎖狀態
-
-// ========= 工具：全形半形、中文數字、十位數處理 =========
-const mapDigit = { "零":0,"〇":0,"Ｏ":0,"O":0,"o":0,"一":1,"二":2,"兩":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9 };
-function cnTensToArabic(str){
-  // 轉換「（X）十（Y）」為阿拉伯數字（10~99），如 十=10、十一=11、二十=20、二十四=24
-  return str.replace(/([二三四五六七八九])?十([一二三四五六七八九])?/g, (_, a, b) => {
-    const tens = a ? mapDigit[a] : 1;
-    const ones = b ? mapDigit[b] : 0;
-    return String(tens * 10 + ones);
-  });
-}
-function toHalfWidthDigits(s){ return s.replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 0xFEE0)); }
-function replaceCnSingles(s){ return s.replace(/[零〇ＯOo一二兩三四五六七八九]/g, ch => mapDigit[ch] ?? ch); }
-function normalizeAnswer(raw){
-  if(!raw) return "";
-  let s = raw.trim();
-  s = toHalfWidthDigits(s);
-  s = cnTensToArabic(s);
-  s = replaceCnSingles(s);
-  s = s.replace(/[年月日號号\.\-\/\s]/g,""); // 移除常見分隔
-  s = s.replace(/[^\d]/g,"");
-  s = s.replace(/^0+/, "");
-  return s;
-}
-
-// ========= 狀態 =========
-let state = JSON.parse(localStorage.getItem(KEY) || "{}");
-if(!state.solved){ state = { solved: {}, unlocked: {} }; }
-
-// ========= UI 注入 =========
-const grid = document.getElementById("grid");
-const bar = document.getElementById("bar");
-
-document.getElementById("celebrationTitle").textContent = CONFIG.celebrationTitle;
-document.getElementById("celebrationMsg").textContent = CONFIG.celebrationMsg;
-
-CONFIG.puzzles.forEach(p => {
-  const card = document.createElement("section");
-  card.className = "card";
-  card.innerHTML = `
-    <h3>${p.title}</h3>
-    <div class="lock" id="lock-${p.id}">
-      <div class="row">
-        <input type="password" autocomplete="off" placeholder="輸入啟動密碼" id="pw-${p.id}">
-        <button id="unlock-${p.id}">解鎖</button>
-        <span class="status" id="lock-status-${p.id}"></span>
-      </div>
-      <div class="hint">小提示：每題都有不同的啟動密碼（你會另外提供給對方）。</div>
-    </div>
-
-    <div class="content" id="content-${p.id}">
-      <p class="riddle">${p.riddle}</p>
-      <div class="row">
-        <input type="text" inputmode="numeric" autocomplete="off" placeholder="${p.placeholder || '輸入答案'}" id="input-${p.id}">
-        <button id="btn-${p.id}">驗證</button>
-        <span class="status" id="status-${p.id}"></span>
-      </div>
-      ${p.hint ? `<div class="hint">小提示：${p.hint}</div>` : ""}
-    </div>
-  `;
-  grid.appendChild(card);
-
-  // 元件引用
-  const unlockBtn = card.querySelector(`#unlock-${p.id}`);
-  const pw = card.querySelector(`#pw-${p.id}`);
-  const lockStatus = card.querySelector(`#lock-status-${p.id}`);
-
-  const content = card.querySelector(`#content-${p.id}`);
-  const input = card.querySelector(`#input-${p.id}`);
-  const btn = card.querySelector(`#btn-${p.id}`);
-  const status = card.querySelector(`#status-${p.id}`);
-
-  // 解鎖邏輯
-  function tryUnlock(){
-    const code = (CONFIG.unlockCodes || {})[p.id] || "";
-    const user = (pw.value || "").trim();
-    const ok = !!code && user === code;
-    if(ok){
-      lockStatus.textContent = "✔ 已解鎖"; lockStatus.className = "status ok";
-      state.unlocked[p.id] = true;
-      document.getElementById(`lock-${p.id}`).style.display = "none";
-      content.classList.add("show");
-      persistAndRefresh();
-    }else{
-      lockStatus.textContent = "✘ 密碼不正確"; lockStatus.className = "status err";
-    }
-  }
-
-  unlockBtn.addEventListener("click", tryUnlock);
-  pw.addEventListener("keydown", (e) => { if(e.key === "Enter") tryUnlock(); });
-
-  // 驗證答案
-  function mark(ok){
-    status.textContent = ok ? "✔ 已解鎖" : "✘ 再想想";
-    status.className = "status " + (ok ? "ok" : "err");
-    if(ok){ input.disabled = true; btn.disabled = true; state.solved[p.id] = true; persistAndRefresh(); }
-  }
-
-  btn.addEventListener("click", () => {
-    const user = normalizeAnswer(input.value);
-    const accepted = (p.accepted || []).map(normalizeAnswer);
-    if(user && accepted.includes(user)){ mark(true); } else { mark(false); }
-  });
-  input.addEventListener("keydown", (e) => { if(e.key === "Enter") btn.click(); });
-
-  // 狀態回填
-  if(state.unlocked[p.id]){
-    document.getElementById(`lock-${p.id}`).style.display = "none";
-    content.classList.add("show");
-  }
-  if(state.solved[p.id]){
-    input.disabled = true; btn.disabled = true; status.textContent = "✔ 已解鎖"; status.className = "status ok";
-  }
-});
-
-function persistAndRefresh(){
-  localStorage.setItem(KEY, JSON.stringify(state));
-  const total = CONFIG.puzzles.length;
-  const done = Object.keys(state.solved).length;
-  bar.style.width = `${(done/total)*100}%`;
-  if(done === total){ showCelebration(); }
-}
-// 初始進度
-persistAndRefresh();
-
-// ========= 慶祝動畫 =========
-const doneSheet = document.getElementById("done");
-const replayBtn = document.getElementById("replay");
-const backBtn = document.getElementById("back");
-
-function showCelebration(){ doneSheet.classList.add("show"); fireConfetti(160); }
-function fireConfetti(n=120){
-  for(let i=0;i<n;i++){
-    const x = Math.random()*100;                 // vw
-    const dur = 2.5 + Math.random()*2.5;         // 2.5~5s
-    const delay = Math.random()*0.8;             // 0~0.8s
-    const el = document.createElement("div");
-    el.className = "confetti";
-    el.style.left = x + "vw";
-    el.style.background = randomConfettiColor();
-    el.style.animationDuration = dur + "s";
-    el.style.animationDelay = delay + "s";
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), (dur+delay)*1000 + 100);
-  }
-}
-function randomConfettiColor(){
-  const palette = ["#78ffd6","#a8bfff","#ffd166","#ff7aa2","#7bffb1","#b693ff","#ffe29a"];
-  return palette[Math.floor(Math.random()*palette.length)];
-}
-replayBtn.addEventListener("click", ()=> fireConfetti(160));
-backBtn.addEventListener("click", ()=> doneSheet.classList.remove("show"));
-
-// ========= 重置功能（DOMContentLoaded 之後再綁） =========
-window.addEventListener('DOMContentLoaded', () => {
-  const resetBtn = document.getElementById('resetAll');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      try {
-        localStorage.removeItem(KEY); // "birthday-riddle-progress-v2"
-        // 若之前測試過舊版本，順手清掉（以防萬一）
-        localStorage.removeItem('birthday-riddle-progress');
-        // 記憶體狀態也歸零
-        state = { solved: {}, unlocked: {} };
-        // 重新載入
-        location.reload();
-      } catch (e) {
-        console.error('重置發生錯誤：', e);
-        alert('重置失敗，請打開主控台(F12)查看錯誤訊息');
+      if (now >= target) {
+        target.setDate(target.getDate() + 1);
       }
-    });
-  }
 
-  // 支援網址參數一鍵重置：yourpage.html?reset=1
-  const usp = new URLSearchParams(location.search);
-  if (usp.get('reset') === '1') {
-    localStorage.removeItem(KEY);
-    localStorage.removeItem('birthday-riddle-progress');
-    const url = new URL(location.href);
-    url.searchParams.delete('reset');
-    location.replace(url.toString());
-  }
-});
-</script>
+      return target;
+    }
+
+    function formatDate(date) {
+      return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} 17:00`;
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const target = getNextFivePM();
+      const diff = target - now;
+
+      const hoursEl = document.getElementById("hours");
+      const minutesEl = document.getElementById("minutes");
+      const secondsEl = document.getElementById("seconds");
+      const targetTextEl = document.getElementById("targetText");
+      const statusEl = document.getElementById("status");
+
+      targetTextEl.textContent = `下班時間：${formatDate(target)}`;
+
+      if (diff <= 0) {
+        hoursEl.textContent = "00";
+        minutesEl.textContent = "00";
+        secondsEl.textContent = "00";
+        statusEl.textContent = "恭喜老婆寶寶大人教授+博士下班了";
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      hoursEl.textContent = String(hours).padStart(2, "0");
+      minutesEl.textContent = String(minutes).padStart(2, "0");
+      secondsEl.textContent = String(seconds).padStart(2, "0");
+
+      if (hours === 0 && minutes < 30) {
+        statusEl.textContent = "準備回家睡覺覺老婆大人寶寶教授+博士。";
+      } else if (hours === 0 && minutes < 10) {
+        statusEl.textContent = "準備回家吃飯飯老婆大人寶寶教授+博士。";
+      } else {
+        statusEl.textContent = "恭喜老婆寶寶大人教授+博士快下班了。";
+      }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
 </body>
 </html>
