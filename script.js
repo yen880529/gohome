@@ -1,6 +1,21 @@
 const PHOTO1 = "photo1.jpg";
 const PHOTO2 = "photo2.jpg";
 
+const QA_LIST = [
+  {
+    question: "你想知道我想對你說什麼嗎",
+    image: "fun1.jpg"
+  },
+  {
+    question: "晚上要來點激情嗎",
+    image: "fun2.jpg"
+  },
+  {
+    question: "你要跟我再一起一輩子嗎",
+    image: "fun3.jpg"
+  }
+];
+
 const mainPhotoEl = document.getElementById("mainPhoto");
 const targetTextEl = document.getElementById("targetText");
 const statusEl = document.getElementById("status");
@@ -9,15 +24,25 @@ const hoursEl = document.getElementById("hours");
 const minutesEl = document.getElementById("minutes");
 const secondsEl = document.getElementById("seconds");
 
+const questionModalEl = document.getElementById("questionModal");
+const resultModalEl = document.getElementById("resultModal");
+const modalQuestionTextEl = document.getElementById("modalQuestionText");
+const modalAnswerInputEl = document.getElementById("modalAnswerInput");
+const modalCancelBtn = document.getElementById("modalCancelBtn");
+const modalSubmitBtn = document.getElementById("modalSubmitBtn");
+const resultImageEl = document.getElementById("resultImage");
+const resultCloseBtn = document.getElementById("resultCloseBtn");
+
 const rotatingReminders = [
   "記得喝水 💧",
-  "坐太久屁股要動動 ✨",
-  "眼睛記得休息 👀",
-  "手腳動一動 🙆",
+  "坐久屁股酸記得動動 ✨",
+  "眼睛要休息 👀",
+  "手腳動動 🙆",
   "深呼吸 🌿",
   "晚餐要吃啥 🐰",
-  "快下班了(應該吧) 💖"
 ];
+
+let currentQA = null;
 
 function getTodayAt(hour, minute = 0, second = 0, ms = 0) {
   const target = new Date();
@@ -45,8 +70,6 @@ function formatDate(date) {
 function updatePhotoByTime(now) {
   const switchTime = getTodayAt(16, 0, 0, 0);
 
-  // 00:00:00 ~ 15:59:59 顯示 photo1.jpg
-  // 16:00:00 ~ 23:59:59 顯示 photo2.jpg
   if (now >= switchTime) {
     mainPhotoEl.src = PHOTO2;
   } else {
@@ -64,7 +87,6 @@ function applyThemeByTime(now) {
   const hour = now.getHours();
   const root = document.documentElement;
 
-  // 05:00~07:59 清晨
   if (hour >= 5 && hour < 8) {
     root.style.setProperty("--bg1", "#fff1b8");
     root.style.setProperty("--bg2", "#ffd9c9");
@@ -75,9 +97,7 @@ function applyThemeByTime(now) {
     root.style.setProperty("--number-color", "#d86f7c");
     root.style.setProperty("--status-color", "#a35f6e");
     root.style.setProperty("--footer-color", "#9d7c76");
-  }
-  // 08:00~11:59 早晨白天
-  else if (hour >= 8 && hour < 12) {
+  } else if (hour >= 8 && hour < 12) {
     root.style.setProperty("--bg1", "#fff3b0");
     root.style.setProperty("--bg2", "#ffd6e7");
     root.style.setProperty("--bg3", "#d9e7ff");
@@ -87,9 +107,7 @@ function applyThemeByTime(now) {
     root.style.setProperty("--number-color", "#c94f93");
     root.style.setProperty("--status-color", "#9c4f80");
     root.style.setProperty("--footer-color", "#9b7693");
-  }
-  // 12:00~15:59 午後
-  else if (hour >= 12 && hour < 16) {
+  } else if (hour >= 12 && hour < 16) {
     root.style.setProperty("--bg1", "#ffe7a8");
     root.style.setProperty("--bg2", "#ffcfcf");
     root.style.setProperty("--bg3", "#ffdff5");
@@ -99,9 +117,7 @@ function applyThemeByTime(now) {
     root.style.setProperty("--number-color", "#d05b74");
     root.style.setProperty("--status-color", "#a35370");
     root.style.setProperty("--footer-color", "#9b7086");
-  }
-  // 16:00~17:59 黃昏
-  else if (hour >= 16 && hour < 18) {
+  } else if (hour >= 16 && hour < 18) {
     root.style.setProperty("--bg1", "#ffd3a5");
     root.style.setProperty("--bg2", "#ffb7c5");
     root.style.setProperty("--bg3", "#d8c3ff");
@@ -111,9 +127,7 @@ function applyThemeByTime(now) {
     root.style.setProperty("--number-color", "#d14d87");
     root.style.setProperty("--status-color", "#9d4a7f");
     root.style.setProperty("--footer-color", "#936f92");
-  }
-  // 18:00~21:59 傍晚夜晚
-  else if (hour >= 18 && hour < 22) {
+  } else if (hour >= 18 && hour < 22) {
     root.style.setProperty("--bg1", "#7a5fa3");
     root.style.setProperty("--bg2", "#5f5d9b");
     root.style.setProperty("--bg3", "#2e3f70");
@@ -123,9 +137,7 @@ function applyThemeByTime(now) {
     root.style.setProperty("--number-color", "#ffb8e0");
     root.style.setProperty("--status-color", "#ffd7ef");
     root.style.setProperty("--footer-color", "#dfc7f2");
-  }
-  // 22:00~04:59 深夜
-  else {
+  } else {
     root.style.setProperty("--bg1", "#24324f");
     root.style.setProperty("--bg2", "#2f2b5a");
     root.style.setProperty("--bg3", "#121a33");
@@ -247,6 +259,77 @@ function updateCountdown() {
     footerTextEl.textContent = "Before Work · 上班前休息中";
   }
 }
+
+function getRandomQA() {
+  const index = Math.floor(Math.random() * QA_LIST.length);
+  return QA_LIST[index];
+}
+
+function openQuestionModal() {
+  currentQA = getRandomQA();
+  modalQuestionTextEl.textContent = currentQA.question;
+  modalAnswerInputEl.value = "";
+  questionModalEl.classList.remove("hidden");
+
+  setTimeout(() => {
+    modalAnswerInputEl.focus();
+  }, 50);
+}
+
+function closeQuestionModal() {
+  questionModalEl.classList.add("hidden");
+}
+
+function openResultModal(imagePath) {
+  resultImageEl.src = imagePath;
+  resultModalEl.classList.remove("hidden");
+}
+
+function closeResultModal() {
+  resultModalEl.classList.add("hidden");
+  resultImageEl.src = "";
+}
+
+function submitQuestionAnswer() {
+  if (!currentQA) return;
+
+  closeQuestionModal();
+  openResultModal(currentQA.image);
+}
+
+mainPhotoEl.addEventListener("click", () => {
+  openQuestionModal();
+});
+
+modalCancelBtn.addEventListener("click", () => {
+  closeQuestionModal();
+});
+
+modalSubmitBtn.addEventListener("click", () => {
+  submitQuestionAnswer();
+});
+
+modalAnswerInputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    submitQuestionAnswer();
+  }
+});
+
+resultCloseBtn.addEventListener("click", () => {
+  closeResultModal();
+});
+
+questionModalEl.addEventListener("click", (event) => {
+  if (event.target === questionModalEl) {
+    closeQuestionModal();
+  }
+});
+
+resultModalEl.addEventListener("click", (event) => {
+  if (event.target === resultModalEl) {
+    closeResultModal();
+  }
+});
 
 updateCountdown();
 setInterval(updateCountdown, 1000);

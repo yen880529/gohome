@@ -15,7 +15,7 @@
   <div class="bubble"></div>
 
   <div class="container">
-    <img id="mainPhoto" src="photo1.jpg" class="main-img" alt="寶寶">
+    <img id="mainPhoto" src="photo1.jpg" class="main-img clickable-photo" alt="寶寶">
 
     <div class="title">老婆上班無聊倒數器</div>
     <div class="subtitle" id="targetText">
@@ -39,6 +39,39 @@
 
     <div class="status" id="status">辛苦老婆大人寶寶教授+博士</div>
     <div class="footer" id="footerText">Countdown to 5:00 PM · 下班倒數中</div>
+  </div>
+
+  <!-- 題目小視窗 -->
+  <div id="questionModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-title">隨機問答時間 ✨</div>
+      <div class="modal-question" id="modalQuestionText"></div>
+
+      <input
+        type="text"
+        id="modalAnswerInput"
+        class="modal-input"
+        placeholder="請輸入你的回答..."
+      />
+
+      <div class="modal-note">輸入後揭曉答案 🐰</div>
+
+      <div class="modal-actions">
+        <button id="modalCancelBtn" class="modal-btn secondary">取消</button>
+        <button id="modalSubmitBtn" class="modal-btn primary">送出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 圖片結果小視窗 -->
+  <div id="resultModal" class="modal hidden">
+    <div class="modal-card result-card">
+      <div class="modal-title">答案揭曉 🐸</div>
+      <img id="resultImage" class="result-image" src="" alt="結果圖片">
+      <div class="modal-actions">
+        <button id="resultCloseBtn" class="modal-btn primary">關閉</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
