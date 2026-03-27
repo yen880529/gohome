@@ -93,7 +93,14 @@
       50% { transform: rotate(6deg) scale(1.08); }
       75% { transform: rotate(-4deg) scale(1.04); }
     }
-
+    .main-img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 20px;
+      margin: 10px 0 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
     .title {
       font-size: clamp(28px, 5vw, 46px);
       font-weight: 900;
@@ -192,7 +199,7 @@
   <div class="bubble"></div>
 
   <div class="container">
-    <div class="emoji">🎀</div>
+    <img src="photo1.jpg" class="main-img" alt="寶寶">
     <div class="title">老婆上班無聊倒數器</div>
     <div class="subtitle" id="targetText">計算下班時間中... <span class="sparkle">✨</span></div>
 
@@ -333,7 +340,7 @@
       } else if (hours === 0) {
         statusEl.textContent = "剩不到一小時，可以包一包等下班了 ✨";
       } else {
-        statusEl.textContent = "恭喜老婆寶寶大人，，離回小窩又更近一步啦 🐰";
+        statusEl.textContent = "恭喜老婆寶寶大人，離回小窩又更近一步啦 🐰";
       }
       return;
     }
