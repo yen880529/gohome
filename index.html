@@ -193,8 +193,8 @@
 
   <div class="container">
     <div class="emoji">🎀</div>
-    <div class="title">距離老婆寶寶回溫暖小窩還有</div>
-    <div class="subtitle" id="targetText">馬路正在努力計算下班時刻中... <span class="sparkle">✨</span></div>
+    <div class="title">老婆上班無聊倒數器</div>
+    <div class="subtitle" id="targetText">計算下班時間中... <span class="sparkle">✨</span></div>
 
     <div class="countdown">
       <div class="time-box">
@@ -212,49 +212,82 @@
     </div>
 
     <div class="status" id="status">辛苦老婆大人寶寶教授+博士</div>
-    <div class="footer">Countdown to 5:00 PM · 豆塔全力倒數中</div>
+    <div class="footer">Countdown to 5:00 PM · 下班倒數中</div>
   </div>
 
-  <script>
-    function getNextFivePM() {
-      const now = new Date();
-      const target = new Date();
+<script>
+  function getTodayAt(hour, minute = 0, second = 0, ms = 0) {
+    const target = new Date();
+    target.setHours(hour, minute, second, ms);
+    return target;
+  }
 
-      target.setHours(17, 0, 0, 0);
+  function getNextWorkStart() {
+    const now = new Date();
+    const target = new Date();
 
-      if (now >= target) {
-        target.setDate(target.getDate() + 1);
-      }
+    target.setHours(8, 0, 0, 0);
 
-      return target;
+    if (now >= target) {
+      target.setDate(target.getDate() + 1);
     }
 
-    function formatDate(date) {
-      return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} 17:00`;
+    return target;
+  }
+
+  function formatDate(date) {
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentSeconds = now.getSeconds();
+
+    const workStart = getTodayAt(8, 0, 0, 0);
+    const lunchStart = getTodayAt(12, 0, 0, 0);
+    const lunchEnd = getTodayAt(13, 0, 0, 0);
+    const offWork = getTodayAt(17, 0, 0, 0);
+    const nextWorkStart = getNextWorkStart();
+
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    const targetTextEl = document.getElementById("targetText");
+    const statusEl = document.getElementById("status");
+
+    let target = null;
+    let mode = "";
+
+    // 08:00 ~ 11:59 倒數午餐
+    if (now >= workStart && now < lunchStart) {
+      target = lunchStart;
+      mode = "countdown_lunch";
+    }
+    // 12:00 ~ 12:59 顯示休息
+    else if (now >= lunchStart && now < lunchEnd) {
+      mode = "lunch_break";
+    }
+    // 13:00 ~ 16:59 倒數下班
+    else if (now >= lunchEnd && now < offWork) {
+      target = offWork;
+      mode = "countdown_offwork";
+    }
+    // 17:00 後顯示休息，並顯示隔天 8:00 上班
+    else if (now >= offWork) {
+      target = nextWorkStart;
+      mode = "after_work_break";
+    }
+    // 08:00 前也顯示休息，並顯示今天 8:00 上班
+    else {
+      target = workStart;
+      mode = "before_work_break";
     }
 
-    function updateCountdown() {
-      const now = new Date();
-      const target = getNextFivePM();
+    if (mode === "countdown_lunch" || mode === "countdown_offwork" || mode === "after_work_break" || mode === "before_work_break") {
       const diff = target - now;
-
-      const hoursEl = document.getElementById("hours");
-      const minutesEl = document.getElementById("minutes");
-      const secondsEl = document.getElementById("seconds");
-      const targetTextEl = document.getElementById("targetText");
-      const statusEl = document.getElementById("status");
-
-      targetTextEl.innerHTML = `今日下班時間：${formatDate(target)} <span class="sparkle">💖</span>`;
-
-      if (diff <= 0) {
-        hoursEl.textContent = "00";
-        minutesEl.textContent = "00";
-        secondsEl.textContent = "00";
-        statusEl.textContent = "恭賀老婆寶寶大人下班 👑";
-        return;
-      }
-
-      const totalSeconds = Math.floor(diff / 1000);
+      const totalSeconds = Math.max(0, Math.floor(diff / 1000));
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
@@ -262,6 +295,36 @@
       hoursEl.textContent = String(hours).padStart(2, "0");
       minutesEl.textContent = String(minutes).padStart(2, "0");
       secondsEl.textContent = String(seconds).padStart(2, "0");
+    } else {
+      hoursEl.textContent = "00";
+      minutesEl.textContent = "00";
+      secondsEl.textContent = "00";
+    }
+
+    if (mode === "countdown_lunch") {
+      targetTextEl.innerHTML = `午餐時間：${formatDate(target)} <span class="sparkle">🍱</span>`;
+
+      if (currentHours === 11 && currentMinutes >= 30) {
+        statusEl.textContent = "🍱 快中午了～準備吃小瓜餐🐌！";
+      } else {
+        statusEl.textContent = "正在倒數午餐時間 ✨";
+      }
+      return;
+    }
+
+    if (mode === "lunch_break") {
+      targetTextEl.innerHTML = `現在是午休時間 <span class="sparkle">🍱</span>`;
+      statusEl.textContent = "午休時間到，午安馬卡巴卡 😴";
+      return;
+    }
+
+    if (mode === "countdown_offwork") {
+      targetTextEl.innerHTML = `今日下班時間：${formatDate(target)} <span class="sparkle">💖</span>`;
+
+      const diff = target - now;
+      const totalSeconds = Math.max(0, Math.floor(diff / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
 
       if (hours === 0 && minutes < 10) {
         statusEl.textContent = "最後 10 分鐘，記得去尿尿！";
@@ -272,10 +335,22 @@
       } else {
         statusEl.textContent = "恭喜老婆寶寶大人，，離回小窩又更近一步啦 🐰";
       }
+      return;
     }
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  </script>
-</body>
-</html>
+    if (mode === "after_work_break") {
+      targetTextEl.innerHTML = `下次上班時間：${formatDate(target)} <span class="sparkle">😴</span>`;
+      statusEl.textContent = "現在是下班休息時間，晚安馬卡巴卡 😴";
+      return;
+    }
+
+    if (mode === "before_work_break") {
+      targetTextEl.innerHTML = `今日上班時間：${formatDate(target)} <span class="sparkle">😴</span>`;
+      statusEl.textContent = "現在是上班前休息時間，請準時起床 🥱";
+      return;
+    }
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
