@@ -10,14 +10,13 @@ const minutesEl = document.getElementById("minutes");
 const secondsEl = document.getElementById("seconds");
 
 const rotatingReminders = [
-  "記得喝水一下 💧",
-  "坐久了可以動一動肩膀 ✨",
-  "眼睛休息 20 秒，看看遠方 👀",
-  "記得伸展一下脖子和手臂 🙆",
-  "深呼吸一下，慢慢來就好 🌿",
-  "檢查一下桌面，有沒有東西先整理好 🧹",
-  "可以先想一下等等下班要做什麼 🐰",
-  "保持節奏，今天也很棒 💖"
+  "記得喝水 💧",
+  "坐太久屁股要動動 ✨",
+  "眼睛記得休息 👀",
+  "手腳動一動 🙆",
+  "深呼吸 🌿",
+  "晚餐要吃啥 🐰",
+  "快下班了(應該吧) 💖"
 ];
 
 function getTodayAt(hour, minute = 0, second = 0, ms = 0) {
