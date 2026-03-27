@@ -80,19 +80,6 @@
       box-shadow: 0 18px 50px rgba(165, 103, 154, 0.22);
     }
 
-    .emoji {
-      font-size: 34px;
-      margin-bottom: 8px;
-      animation: wiggle 2.5s infinite;
-      display: inline-block;
-    }
-
-    @keyframes wiggle {
-      0%, 100% { transform: rotate(0deg) scale(1); }
-      25% { transform: rotate(-6deg) scale(1.05); }
-      50% { transform: rotate(6deg) scale(1.08); }
-      75% { transform: rotate(-4deg) scale(1.04); }
-    }
     .main-img {
       width: 160px;
       height: 160px;
@@ -101,6 +88,7 @@
       margin: 10px 0 18px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
+
     .title {
       font-size: clamp(28px, 5vw, 46px);
       font-weight: 900;
@@ -199,7 +187,7 @@
   <div class="bubble"></div>
 
   <div class="container">
-    <img src="photo1.jpg" class="main-img" alt="寶寶">
+    <img id="mainPhoto" src="photo1.jpg" class="main-img" alt="寶寶">
     <div class="title">老婆上班無聊倒數器</div>
     <div class="subtitle" id="targetText">計算下班時間中... <span class="sparkle">✨</span></div>
 
@@ -223,6 +211,9 @@
   </div>
 
 <script>
+  const PHOTO1 = "photo1.jpg";
+  const PHOTO2 = "photo2.jpg";
+
   function getTodayAt(hour, minute = 0, second = 0, ms = 0) {
     const target = new Date();
     target.setHours(hour, minute, second, ms);
@@ -246,11 +237,26 @@
     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   }
 
+  function updatePhotoByTime(now) {
+    const mainPhotoEl = document.getElementById("mainPhoto");
+    const switchTime = getTodayAt(16, 0, 0, 0);
+
+    // 時間區間：
+    // 00:00:00 ~ 15:59:59 顯示 photo1.jpg
+    // 16:00:00 ~ 23:59:59 顯示 photo2.jpg
+    if (now >= switchTime) {
+      mainPhotoEl.src = PHOTO2;
+    } else {
+      mainPhotoEl.src = PHOTO1;
+    }
+  }
+
   function updateCountdown() {
     const now = new Date();
     const currentHours = now.getHours();
     const currentMinutes = now.getMinutes();
-    const currentSeconds = now.getSeconds();
+
+    updatePhotoByTime(now);
 
     const workStart = getTodayAt(8, 0, 0, 0);
     const lunchStart = getTodayAt(12, 0, 0, 0);
@@ -267,27 +273,18 @@
     let target = null;
     let mode = "";
 
-    // 08:00 ~ 11:59 倒數午餐
     if (now >= workStart && now < lunchStart) {
       target = lunchStart;
       mode = "countdown_lunch";
-    }
-    // 12:00 ~ 12:59 顯示休息
-    else if (now >= lunchStart && now < lunchEnd) {
+    } else if (now >= lunchStart && now < lunchEnd) {
       mode = "lunch_break";
-    }
-    // 13:00 ~ 16:59 倒數下班
-    else if (now >= lunchEnd && now < offWork) {
+    } else if (now >= lunchEnd && now < offWork) {
       target = offWork;
       mode = "countdown_offwork";
-    }
-    // 17:00 後顯示休息，並顯示隔天 8:00 上班
-    else if (now >= offWork) {
+    } else if (now >= offWork) {
       target = nextWorkStart;
       mode = "after_work_break";
-    }
-    // 08:00 前也顯示休息，並顯示今天 8:00 上班
-    else {
+    } else {
       target = workStart;
       mode = "before_work_break";
     }
@@ -354,10 +351,11 @@
     if (mode === "before_work_break") {
       targetTextEl.innerHTML = `今日上班時間：${formatDate(target)} <span class="sparkle">😴</span>`;
       statusEl.textContent = "現在是上班前休息時間，請準時起床 🥱";
-      return;
     }
   }
 
   updateCountdown();
   setInterval(updateCountdown, 1000);
 </script>
+</body>
+</html>
