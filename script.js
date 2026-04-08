@@ -16,6 +16,16 @@ const QA_LIST = [
   }
 ];
 
+const FORTUNE_LIST = [
+  { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨" },
+  { name: "吉", image: "fortune2.jpg", desc: " 毛毛朋友幫🐱🐰" },
+  { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇" },
+  { name: "小吉", image: "fortune4.jpg", desc: "水豚水豚 🌿" },
+  { name: "末吉", image: "fortune5.jpg", desc: "懶惰馬路 🐈" },
+  { name: "凶", image: "fortune6.jpg", desc: "神秘黑炭 ⚠️" },
+  { name: "大凶", image: "fortune7.jpg", desc: "協惡豆塔 😾" }
+];
+
 const mainPhotoEl = document.getElementById("mainPhoto");
 const targetTextEl = document.getElementById("targetText");
 const statusEl = document.getElementById("status");
@@ -32,6 +42,8 @@ const modalCancelBtn = document.getElementById("modalCancelBtn");
 const modalSubmitBtn = document.getElementById("modalSubmitBtn");
 const resultImageEl = document.getElementById("resultImage");
 const resultCloseBtn = document.getElementById("resultCloseBtn");
+const fortuneBtn = document.getElementById("fortuneBtn");
+const fortuneHintEl = document.getElementById("fortuneHint");
 
 const rotatingReminders = [
   "記得喝水 💧",
@@ -264,7 +276,73 @@ function getRandomQA() {
   const index = Math.floor(Math.random() * QA_LIST.length);
   return QA_LIST[index];
 }
+function getCurrentHourKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const h = String(now.getHours()).padStart(2, "0");
+  return `${y}-${m}-${d}-${h}`;
+}
 
+function getNextHourTime() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setMinutes(0, 0, 0);
+  next.setHours(next.getHours() + 1);
+  return next;
+}
+
+function formatTimeHM(date) {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function getRandomFortune() {
+  const index = Math.floor(Math.random() * FORTUNE_LIST.length);
+  return FORTUNE_LIST[index];
+}
+
+function updateFortuneButtonState() {
+  const currentHourKey = getCurrentHourKey();
+  const lastDrawHour = localStorage.getItem("fortune_last_draw_hour");
+
+  if (lastDrawHour === currentHourKey) {
+    const nextHour = getNextHourTime();
+    fortuneBtn.disabled = true;
+    fortuneHintEl.textContent = `本小時已抽過，下次可抽時間：${formatTimeHM(nextHour)} ✨`;
+  } else {
+    fortuneBtn.disabled = false;
+    fortuneHintEl.textContent = "每個整點可抽一次 ✨";
+  }
+}
+
+function drawFortune() {
+  const currentHourKey = getCurrentHourKey();
+  const lastDrawHour = localStorage.getItem("fortune_last_draw_hour");
+
+  if (lastDrawHour === currentHourKey) {
+    const nextHour = getNextHourTime();
+    fortuneHintEl.textContent = `本小時已抽過，下次可抽時間：${formatTimeHM(nextHour)} ✨`;
+    return;
+  }
+
+  const fortune = getRandomFortune();
+
+  localStorage.setItem("fortune_last_draw_hour", currentHourKey);
+  localStorage.setItem("fortune_last_result_name", fortune.name);
+  localStorage.setItem("fortune_last_result_image", fortune.image);
+
+  resultImageEl.src = fortune.image;
+  resultModalEl.classList.remove("hidden");
+
+  const titleEl = resultModalEl.querySelector(".modal-title");
+  if (titleEl) {
+    titleEl.textContent = `今日運籤：${fortune.name} 🏮`;
+  }
+
+  fortuneHintEl.textContent = `你這小時抽到的是：${fortune.name} ✨`;
+  updateFortuneButtonState();
+}
 function openQuestionModal() {
   currentQA = getRandomQA();
   modalQuestionTextEl.textContent = currentQA.question;
@@ -280,7 +358,12 @@ function closeQuestionModal() {
   questionModalEl.classList.add("hidden");
 }
 
-function openResultModal(imagePath) {
+function openResultModal(imagePath, title = "答案揭曉 🐸") {
+  const titleEl = resultModalEl.querySelector(".modal-title");
+  if (titleEl) {
+    titleEl.textContent = title;
+  }
+
   resultImageEl.src = imagePath;
   resultModalEl.classList.remove("hidden");
 }
@@ -294,8 +377,12 @@ function submitQuestionAnswer() {
   if (!currentQA) return;
 
   closeQuestionModal();
-  openResultModal(currentQA.image);
+  openResultModal(currentQA.image, "答案揭曉 🐸");
 }
+
+fortuneBtn.addEventListener("click", () => {
+  drawFortune();
+});
 
 mainPhotoEl.addEventListener("click", () => {
   openQuestionModal();
@@ -331,5 +418,12 @@ resultModalEl.addEventListener("click", (event) => {
   }
 });
 
+
+
 updateCountdown();
-setInterval(updateCountdown, 1000);
+updateFortuneButtonState();
+
+setInterval(() => {
+  updateCountdown();
+  updateFortuneButtonState();
+}, 1000);
