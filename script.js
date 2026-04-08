@@ -337,9 +337,13 @@ function drawFortune() {
 
   const titleEl = resultModalEl.querySelector(".modal-title");
   if (titleEl) {
-    titleEl.textContent = `今日運籤：${fortune.name} 🏮`;
+    titleEl.innerHTML = `
+      今日運籤：${fortune.name} 🏮
+      <div style="font-size:16px; margin-top:6px; font-weight:700;">
+        ${fortune.desc}
+      </div>
+    `;
   }
-
   fortuneHintEl.textContent = `你這小時抽到的是：${fortune.name} ✨`;
   updateFortuneButtonState();
 }
