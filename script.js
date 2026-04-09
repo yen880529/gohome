@@ -43,19 +43,13 @@ const FORTUNE_LIST = [
 ];
 
 // =========================================================
-// 幸運抽獎機率
-// 1 = 1%
-// 2 = 5%
-// 3 = 10%
-// 4 = 20%
-// 5 = 64%
 // =========================================================
 const PRIZE_LIST = [
   { name: "1", image: "prize1.jpg", rate: 1, desc: "包包獎 👜✨" },
   { name: "2", image: "prize2.jpg", rate: 3, desc: "鞋鞋衣服獎 👗🎉" },
-  { name: "3", image: "prize3.jpg", rate: 6, desc: "化妝品獎 🪮🎁" },
-  { name: "4", image: "prize4.jpg", rate: 10, desc: "美食獎 🍲" },
-  { name: "5", image: "prize5.jpg", rate: 10, desc: "兜風獎 🍲" },
+  { name: "3", image: "prize3.jpg", rate: 3, desc: "化妝品獎 🪮🎁" },
+  { name: "4", image: "prize4.jpg", rate: 3, desc: "美食獎 🍲" },
+  { name: "5", image: "prize5.jpg", rate: 10, desc: "兜風獎 🚗" },
   { name: "6", image: "prize6.jpg", rate: 70, desc: "愛的抱抱老婆獎 🍀" }
 ];
 
