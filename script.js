@@ -39,7 +39,7 @@ const FORTUNE_LIST = [
   { name: "小吉", image: "fortune4.jpg", desc: "水豚水豚 🌿", rate: 15 },
   { name: "末吉", image: "fortune5.jpg", desc: "懶惰馬路 🐈", rate: 15 },
   { name: "凶", image: "fortune6.jpg", desc: "神秘黑炭 ⚠️", rate: 10 },
-  { name: "大凶", image: "fortune7.jpg", desc: "協惡豆塔 😾", rate: 10 }
+  { name: "大凶", image: "fortune7.jpg", desc: "邪惡豆塔 😾", rate: 10 }
 ];
 
 // =========================================================
