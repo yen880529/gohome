@@ -69,15 +69,23 @@
   </div>
 
   <!-- 圖片結果小視窗 -->
-  <div id="resultModal" class="modal hidden">
-    <div class="modal-card result-card">
-      <div class="modal-title">答案揭曉 🐸</div>
-      <img id="resultImage" class="result-image" src="" alt="結果圖片">
-      <div class="modal-actions">
-        <button id="resultCloseBtn" class="modal-btn primary">關閉</button>
-      </div>
+<div id="resultModal" class="modal hidden">
+  <div class="modal-card result-card">
+    <div class="modal-title">答案揭曉 🐸</div>
+
+    <img id="resultImage" class="result-image" src="" alt="結果圖片">
+
+    <!-- 大吉時才顯示 -->
+    <div id="luckyDrawArea" class="hidden" style="margin-top:16px;">
+      <button id="luckyDrawBtn" class="modal-btn primary">幸運抽獎</button>
+      <div id="luckyDrawStatus" style="margin-top:10px; font-weight:700;"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="resultCloseBtn" class="modal-btn primary">關閉</button>
     </div>
   </div>
+</div>
 
   <script src="script.js"></script>
 </body>
