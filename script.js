@@ -6,7 +6,7 @@ const PHOTO2 = "photo2.jpg";
 // true  = 測試模式（幾秒就能再抽一次）
 // false = 正式模式（每小時只能抽一次）
 // =========================================================
-const TEST_MODE = false;
+const TEST_MODE = true;
 const TEST_DRAW_SECONDS = 5;
 
 // =========================================================
