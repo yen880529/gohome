@@ -6,8 +6,8 @@ const PHOTO2 = "photo2.jpg";
 // true  = 測試模式（幾秒就能再抽一次）
 // false = 正式模式（每小時只能抽一次）
 // =========================================================
-const TEST_MODE = true;
-const TEST_DRAW_SECONDS = 0.5;
+const TEST_MODE = false;
+const TEST_DRAW_SECONDS = 1;
 
 // =========================================================
 // 問答圖片
@@ -34,7 +34,7 @@ const QA_LIST = [
 // 吉       = 18%
 // =========================================================
 const FORTUNE_LIST = [
-  { name: "隱藏大獎", image: "fortune0.jpg", desc: "隱藏大獎 🐱✨", rate: 100 },
+  { name: "隱藏大獎", image: "fortune0.jpg", desc: "👽👾👻👾👽", rate: 1 },
   { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨", rate: 9 },
   { name: "吉", image: "fortune2.jpg", desc: "毛毛朋友幫🐱🐰", rate: 18 },
   { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇", rate: 20 },
