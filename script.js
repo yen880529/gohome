@@ -6,8 +6,8 @@ const PHOTO2 = "photo2.jpg";
 // true  = 測試模式（幾秒就能再抽一次）
 // false = 正式模式（每小時只能抽一次）
 // =========================================================
-const TEST_MODE = false;
-const TEST_DRAW_SECONDS = 5;
+const TEST_MODE = true;
+const TEST_DRAW_SECONDS = 0.5;
 
 // =========================================================
 // 問答圖片
@@ -28,29 +28,32 @@ const QA_LIST = [
 ];
 
 // =========================================================
-// 運勢機率
-// 大吉 10%
-// 其餘自行分配
+// 運勢機率（總和 100）
+// 隱藏大獎 = 1%
+// 大吉     = 9%
+// 吉       = 18%
 // =========================================================
 const FORTUNE_LIST = [
-  { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨", rate: 10 },
-  { name: "吉", image: "fortune2.jpg", desc: "毛毛朋友幫🐱🐰", rate: 15 },
-  { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇", rate: 15 },
-  { name: "小吉", image: "fortune4.jpg", desc: "水豚水豚 🌿", rate: 15 },
-  { name: "末吉", image: "fortune5.jpg", desc: "懶惰馬路 🐈", rate: 15 },
-  { name: "凶", image: "fortune6.jpg", desc: "神秘黑炭 ⚠️", rate: 10 },
+  { name: "隱藏大獎", image: "fortune0.jpg", desc: "隱藏大獎 🐱✨", rate: 100 },
+  { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨", rate: 9 },
+  { name: "吉", image: "fortune2.jpg", desc: "毛毛朋友幫🐱🐰", rate: 18 },
+  { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇", rate: 20 },
+  { name: "小吉", image: "fortune4.jpg", desc: "水豚水豚 🌿", rate: 16 },
+  { name: "末吉", image: "fortune5.jpg", desc: "懶惰馬路 🐈", rate: 14 },
+  { name: "凶", image: "fortune6.jpg", desc: "神秘黑炭 ⚠️", rate: 12 },
   { name: "大凶", image: "fortune7.jpg", desc: "邪惡豆塔 😾", rate: 10 }
 ];
 
 // =========================================================
+// 抽獎獎項
 // =========================================================
 const PRIZE_LIST = [
   { name: "1", image: "prize1.jpg", rate: 1, desc: "包包獎 👜✨" },
   { name: "2", image: "prize2.jpg", rate: 3, desc: "鞋鞋衣服獎 👗🎉" },
   { name: "3", image: "prize3.jpg", rate: 3, desc: "化妝品獎 🪮🎁" },
-  { name: "4", image: "prize4.jpg", rate: 3, desc: "美食獎 🍲" },
-  { name: "5", image: "prize5.jpg", rate: 10, desc: "兜風獎 🚗" },
-  { name: "6", image: "prize6.jpg", rate: 70, desc: "愛的抱抱老婆獎 🍀" }
+  { name: "4", image: "prize4.jpg", rate: 6, desc: "美食獎 🍲" },
+  { name: "5", image: "prize5.jpg", rate: 20, desc: "兜風獎 🚗" },
+  { name: "6", image: "prize6.jpg", rate: 74, desc: "愛的抱抱老婆獎 🍀" }
 ];
 
 // =========================================================
@@ -79,6 +82,12 @@ const fortuneHintEl = document.getElementById("fortuneHint");
 const luckyDrawAreaEl = document.getElementById("luckyDrawArea");
 const luckyDrawBtn = document.getElementById("luckyDrawBtn");
 const luckyDrawStatusEl = document.getElementById("luckyDrawStatus");
+
+// =========================================================
+// 動態獎項區（給隱藏大獎 3 連抽用）
+// 不用改 HTML，JS 自己插入
+// =========================================================
+let prizeGridEl = null;
 
 // =========================================================
 // 提醒文字
@@ -121,6 +130,14 @@ function getRandomPrize() {
   return getWeightedRandom(PRIZE_LIST);
 }
 
+function getRandomPrizeFromRange(minNo, maxNo) {
+  const filtered = PRIZE_LIST.filter(item => {
+    const no = Number(item.name);
+    return no >= minNo && no <= maxNo;
+  });
+  return getWeightedRandom(filtered);
+}
+
 function getRandomQA() {
   const index = Math.floor(Math.random() * QA_LIST.length);
   return QA_LIST[index];
@@ -161,6 +178,143 @@ function getRemainingTestSeconds(lastDrawTime) {
   const now = Date.now();
   const diff = TEST_DRAW_SECONDS * 1000 - (now - lastDrawTime);
   return Math.max(0, Math.ceil(diff / 1000));
+}
+
+// =========================================================
+// 結果視窗圖區管理
+// =========================================================
+function ensurePrizeGrid() {
+  if (prizeGridEl) return prizeGridEl;
+
+  prizeGridEl = document.createElement("div");
+  prizeGridEl.id = "dynamicPrizeGrid";
+  prizeGridEl.style.display = "none";
+  prizeGridEl.style.width = "100%";
+  prizeGridEl.style.maxWidth = "820px";
+  prizeGridEl.style.margin = "18px auto 6px auto";
+  prizeGridEl.style.gap = "12px";
+  prizeGridEl.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
+  prizeGridEl.style.alignItems = "start";
+
+  if (resultImageEl && resultImageEl.parentNode) {
+    resultImageEl.parentNode.insertBefore(prizeGridEl, resultImageEl.nextSibling);
+  }
+
+  return prizeGridEl;
+}
+
+function clearPrizeGrid() {
+  const grid = ensurePrizeGrid();
+  grid.innerHTML = "";
+  grid.style.display = "none";
+
+  if (resultImageEl) {
+    resultImageEl.style.display = "";
+    resultImageEl.style.maxWidth = "";
+    resultImageEl.style.width = "";
+  }
+}
+
+function showSingleResultImage(imagePath) {
+  clearPrizeGrid();
+  resultImageEl.src = imagePath;
+
+  // 單張圖維持大圖
+  resultImageEl.style.display = "";
+  resultImageEl.style.width = "100%";
+  resultImageEl.style.maxWidth = "360px";
+}
+
+function showTriplePrizeCards(prizeList) {
+  const grid = ensurePrizeGrid();
+  grid.innerHTML = "";
+  grid.style.display = "grid";
+
+  if (resultImageEl) {
+    resultImageEl.style.display = "none";
+    resultImageEl.src = "";
+  }
+
+  prizeList.forEach((prize, index) => {
+    const card = document.createElement("div");
+    card.style.background = "rgba(255,255,255,0.88)";
+    card.style.borderRadius = "18px";
+    card.style.padding = "10px";
+    card.style.boxShadow = "0 10px 24px rgba(0,0,0,0.12)";
+    card.style.textAlign = "center";
+
+    const badge = document.createElement("div");
+    badge.textContent = `第 ${index + 1} 抽`;
+    badge.style.fontWeight = "800";
+    badge.style.fontSize = "14px";
+    badge.style.marginBottom = "8px";
+    badge.style.color = "#ff4f8b";
+
+    const img = document.createElement("img");
+    img.src = prize.image;
+    img.alt = `獎項 ${prize.name}`;
+    img.style.width = "100%";
+    img.style.maxWidth = "180px";
+    img.style.height = "180px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "14px";
+    img.style.display = "block";
+    img.style.margin = "0 auto 10px auto";
+
+    const title = document.createElement("div");
+    title.textContent = `獎項 ${prize.name}`;
+    title.style.fontSize = "18px";
+    title.style.fontWeight = "900";
+    title.style.marginBottom = "6px";
+    title.style.color = "#ff4f8b";
+
+    const desc = document.createElement("div");
+    desc.textContent = prize.desc;
+    desc.style.fontSize = "14px";
+    desc.style.fontWeight = "700";
+    desc.style.lineHeight = "1.5";
+    desc.style.color = "#444";
+
+    card.appendChild(badge);
+    card.appendChild(img);
+    card.appendChild(title);
+    card.appendChild(desc);
+    grid.appendChild(card);
+  });
+}
+
+// =========================================================
+// 幸運抽獎規則
+// 吉       -> 4~6 抽 1 個
+// 大吉     -> 1~3 抽 1 個
+// 隱藏大獎 -> 1~3 連抽 3 個
+// =========================================================
+function getLuckyDrawConfigByFortune(fortuneName) {
+  if (fortuneName === "吉") {
+    return {
+      mode: "single",
+      buttonText: "幸運抽獎",
+      prizeRange: [4, 6]
+    };
+  }
+
+  if (fortuneName === "大吉") {
+    return {
+      mode: "single",
+      buttonText: "幸運抽獎",
+      prizeRange: [1, 3]
+    };
+  }
+
+  if (fortuneName === "隱藏大獎") {
+    return {
+      mode: "triple",
+      buttonText: "隱藏大獎 3連抽",
+      prizeRange: [1, 3]
+    };
+  }
+
+  return null;
 }
 
 // =========================================================
@@ -448,16 +602,27 @@ function drawFortune() {
     `;
   }
 
-  resultImageEl.src = fortune.image;
+  showSingleResultImage(fortune.image);
   resultModalEl.classList.remove("hidden");
 
   luckyDrawAreaEl.classList.add("hidden");
   luckyDrawStatusEl.textContent = "";
   luckyDrawBtn.disabled = false;
+  luckyDrawBtn.textContent = "幸運抽獎";
 
-  if (fortune.name === "大吉") {
+  const luckyConfig = getLuckyDrawConfigByFortune(fortune.name);
+
+  if (luckyConfig) {
     luckyDrawAreaEl.classList.remove("hidden");
-    fortuneHintEl.textContent = `你這次抽到的是：${fortune.name}，可觸發幸運抽獎 🎁`;
+    luckyDrawBtn.textContent = luckyConfig.buttonText;
+
+    if (fortune.name === "吉") {
+      fortuneHintEl.textContent = `你這次抽到的是：${fortune.name}，可抽 4~6 獎其中 1 個 🎁`;
+    } else if (fortune.name === "大吉") {
+      fortuneHintEl.textContent = `你這次抽到的是：${fortune.name}，可抽 1~3 獎其中 1 個 🎁`;
+    } else if (fortune.name === "隱藏大獎") {
+      fortuneHintEl.textContent = `你這次抽到的是：${fortune.name}，可進行 1~3 獎 3連抽 🎁🎁🎁`;
+    }
   } else {
     fortuneHintEl.textContent = `你這次抽到的是：${fortune.name} ✨`;
   }
@@ -489,16 +654,18 @@ function openResultModal(imagePath, title = "答案揭曉 🐸") {
     titleEl.textContent = title;
   }
 
-  resultImageEl.src = imagePath;
+  showSingleResultImage(imagePath);
   resultModalEl.classList.remove("hidden");
 }
 
 function closeResultModal() {
   resultModalEl.classList.add("hidden");
   resultImageEl.src = "";
+  clearPrizeGrid();
   luckyDrawAreaEl.classList.add("hidden");
   luckyDrawStatusEl.textContent = "";
   luckyDrawBtn.disabled = false;
+  luckyDrawBtn.textContent = "幸運抽獎";
   currentFortune = null;
 }
 
@@ -517,8 +684,7 @@ function playLuckyDrawEffect(callback) {
     "抽獎中 ✨",
     "抽獎中 ✨✨",
     "抽獎中 ✨✨✨",
-    "幸運降臨中 🍀",
-    "獎項揭曉中 🎁"
+    "獎項揭曉 🎁"
   ];
 
   let index = 0;
@@ -538,33 +704,84 @@ function playLuckyDrawEffect(callback) {
 }
 
 function doLuckyDraw() {
-  if (!currentFortune || currentFortune.name !== "大吉") return;
+  if (!currentFortune) return;
+
+  const config = getLuckyDrawConfigByFortune(currentFortune.name);
+  if (!config) return;
 
   playLuckyDrawEffect(() => {
-    const prize = getRandomPrize();
-
-    localStorage.setItem("prize_last_result_name", prize.name);
-    localStorage.setItem("prize_last_result_image", prize.image);
-
     const titleEl = resultModalEl.querySelector(".modal-title");
-    if (titleEl) {
-      titleEl.innerHTML = `
-        今日運籤：大吉 🏮
-        <div style="font-size:16px; margin-top:6px; font-weight:700;">
-          ${currentFortune.desc}
-        </div>
-        <div style="font-size:18px; margin-top:14px; font-weight:900; color:#ff4f8b;">
-          🎁 幸運抽獎：獎項 ${prize.name}
-        </div>
-        <div style="font-size:15px; margin-top:6px; font-weight:700;">
-          ${prize.desc}
-        </div>
-      `;
+
+    // -----------------------------------------------------
+    // 單抽模式
+    // 吉 -> 4~6
+    // 大吉 -> 1~3
+    // -----------------------------------------------------
+    if (config.mode === "single") {
+      const [minNo, maxNo] = config.prizeRange;
+      const prize = getRandomPrizeFromRange(minNo, maxNo);
+
+      localStorage.setItem("prize_last_result_name", prize.name);
+      localStorage.setItem("prize_last_result_image", prize.image);
+
+      if (titleEl) {
+        titleEl.innerHTML = `
+          今日運籤：${currentFortune.name} 🏮
+          <div style="font-size:16px; margin-top:6px; font-weight:700;">
+            ${currentFortune.desc}
+          </div>
+          <div style="font-size:18px; margin-top:14px; font-weight:900; color:#ff4f8b;">
+            🎁 幸運抽獎：獎項 ${prize.name}
+          </div>
+          <div style="font-size:15px; margin-top:6px; font-weight:700;">
+            ${prize.desc}
+          </div>
+        `;
+      }
+
+      showSingleResultImage(prize.image);
+      luckyDrawStatusEl.textContent = `恭喜抽中獎項 ${prize.name} 🎉`;
+      luckyDrawBtn.disabled = true;
+      return;
     }
 
-    resultImageEl.src = prize.image;
-    luckyDrawStatusEl.textContent = `恭喜抽中獎項 ${prize.name} 🎉`;
-    luckyDrawBtn.disabled = true;
+    // -----------------------------------------------------
+    // 3連抽模式
+    // 隱藏大獎 -> 1~3 抽 3 次
+    // -----------------------------------------------------
+    if (config.mode === "triple") {
+      const [minNo, maxNo] = config.prizeRange;
+      const prizes = [
+        getRandomPrizeFromRange(minNo, maxNo),
+        getRandomPrizeFromRange(minNo, maxNo),
+        getRandomPrizeFromRange(minNo, maxNo)
+      ];
+
+      localStorage.setItem("prize_last_result_name", prizes.map(p => p.name).join(","));
+      localStorage.setItem("prize_last_result_image", prizes.map(p => p.image).join(","));
+
+      if (titleEl) {
+        titleEl.innerHTML = `
+          今日運籤：${currentFortune.name} 🏮
+          <div style="font-size:16px; margin-top:6px; font-weight:700;">
+            ${currentFortune.desc}
+          </div>
+          <div style="font-size:18px; margin-top:14px; font-weight:900; color:#ff4f8b;">
+            🎁 隱藏大獎 3連抽結果
+          </div>
+          <div style="font-size:15px; margin-top:6px; font-weight:700;">
+            共抽出 3 個獎項
+          </div>
+        `;
+      }
+
+      showTriplePrizeCards(prizes);
+
+      luckyDrawStatusEl.textContent =
+        `恭喜抽中：${prizes.map((p, i) => `第${i + 1}抽-獎項${p.name}`).join("、")} 🎉`;
+
+      luckyDrawBtn.disabled = true;
+    }
   });
 }
 
@@ -616,6 +833,7 @@ resultModalEl.addEventListener("click", (event) => {
 // =========================================================
 // 初始化
 // =========================================================
+ensurePrizeGrid();
 updateCountdown();
 updateFortuneButtonState();
 
