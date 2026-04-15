@@ -520,7 +520,7 @@ function updateCountdown() {
     if (currentHours === 11 && currentMinutes >= 30) {
       statusEl.textContent = "🍱 快中午了～準備吃小瓜餐🐌！";
     } else {
-      statusEl.textContent = "正在倒數午餐時間 ✨";
+      statusEl.textContent = "對不起老婆寶寶大人。我不會拿衣服";
     }
 
     footerTextEl.textContent = "Countdown to Lunch · 午餐倒數中";
@@ -529,7 +529,7 @@ function updateCountdown() {
 
   if (mode === "lunch_break") {
     targetTextEl.innerHTML = `現在是午休時間 <span class="sparkle">🍱</span>`;
-    statusEl.textContent = "午休時間到，午安馬卡巴卡 😴";
+    statusEl.textContent = "對不起老婆寶寶大人。我不會拿衣服";
     footerTextEl.textContent = "Lunch Break · 午休時間";
     return;
   }
