@@ -35,9 +35,9 @@ const QA_LIST = [
 // =========================================================
 const FORTUNE_LIST = [
   { name: "隱藏大獎", image: "fortune0.jpg", desc: "👽👾👻👾👽", rate: 1 },
-  { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨", rate: 9 },
+  { name: "大吉", image: "fortune1.jpg", desc: "好運馬路 🐱✨", rate: 3 },
   { name: "吉", image: "fortune2.jpg", desc: "毛毛朋友幫🐱🐰", rate: 18 },
-  { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇", rate: 20 },
+  { name: "中吉", image: "fortune3.jpg", desc: "老波妞 🐇", rate: 26 },
   { name: "小吉", image: "fortune4.jpg", desc: "水豚水豚 🌿", rate: 16 },
   { name: "末吉", image: "fortune5.jpg", desc: "懶惰馬路 🐈", rate: 14 },
   { name: "凶", image: "fortune6.jpg", desc: "神秘黑炭 ⚠️", rate: 12 },
@@ -48,12 +48,12 @@ const FORTUNE_LIST = [
 // 抽獎獎項
 // =========================================================
 const PRIZE_LIST = [
-  { name: "1", image: "prize1.jpg", rate: 1, desc: "包包獎 👜✨" },
-  { name: "2", image: "prize2.jpg", rate: 3, desc: "鞋鞋衣服獎 👗🎉" },
-  { name: "3", image: "prize3.jpg", rate: 3, desc: "化妝品獎 🪮🎁" },
-  { name: "4", image: "prize4.jpg", rate: 6, desc: "美食獎 🍲" },
-  { name: "5", image: "prize5.jpg", rate: 20, desc: "兜風獎 🚗" },
-  { name: "6", image: "prize6.jpg", rate: 74, desc: "愛的抱抱老婆獎 🍀" }
+  { name: "1", image: "prize1.jpg", rate: 0.5, desc: "包包獎 👜✨" },
+  { name: "2", image: "prize2.jpg", rate: 1, desc: "鞋鞋衣服獎 👗🎉" },
+  { name: "3", image: "prize3.jpg", rate: 2, desc: "化妝品獎 🪮🎁" },
+  { name: "4", image: "prize4.jpg", rate: 3, desc: "美食獎 🍲" },
+  { name: "5", image: "prize5.jpg", rate: 5, desc: "兜風獎 🚗" },
+  { name: "6", image: "prize6.jpg", rate: 88.5, desc: "愛的抱抱老婆獎 🍀" }
 ];
 
 // =========================================================
@@ -520,7 +520,7 @@ function updateCountdown() {
     if (currentHours === 11 && currentMinutes >= 30) {
       statusEl.textContent = "🍱 快中午了～準備吃小瓜餐🐌！";
     } else {
-      statusEl.textContent = "對不起老婆寶寶大人。我不會拿衣服";
+      statusEl.textContent = "happy happy happy";
     }
 
     footerTextEl.textContent = "Countdown to Lunch · 午餐倒數中";
@@ -529,7 +529,7 @@ function updateCountdown() {
 
   if (mode === "lunch_break") {
     targetTextEl.innerHTML = `現在是午休時間 <span class="sparkle">🍱</span>`;
-    statusEl.textContent = "對不起老婆寶寶大人。我不會拿衣服";
+    statusEl.textContent = "回家扁豆塔";
     footerTextEl.textContent = "Lunch Break · 午休時間";
     return;
   }
