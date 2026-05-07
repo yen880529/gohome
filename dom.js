@@ -5,6 +5,9 @@ const footerTextEl = document.getElementById("footerText");
 const hoursEl = document.getElementById("hours");
 const minutesEl = document.getElementById("minutes");
 const secondsEl = document.getElementById("seconds");
+const workProgressPercentEl = document.getElementById("workProgressPercent");
+const workProgressFillEl = document.getElementById("workProgressFill");
+const workProgressTextEl = document.getElementById("workProgressText");
 
 const questionModalEl = document.getElementById("questionModal");
 const resultModalEl = document.getElementById("resultModal");

@@ -125,6 +125,36 @@ function resetCountdownNumbers() {
   secondsEl.textContent = "00";
 }
 
+function getWorkProgressPercent(now) {
+  const workStart = getTodayAt(8, 0, 0, 0);
+  const offWork = getTodayAt(17, 0, 0, 0);
+  const total = offWork - workStart;
+  const elapsed = now - workStart;
+  const percent = (elapsed / total) * 100;
+
+  return Math.min(100, Math.max(0, percent));
+}
+
+function updateWorkProgress(now) {
+  const percent = getWorkProgressPercent(now);
+  const roundedPercent = Math.round(percent);
+
+  workProgressPercentEl.textContent = `${roundedPercent}%`;
+  workProgressFillEl.style.width = `${percent}%`;
+
+  if (roundedPercent <= 0) {
+    workProgressTextEl.textContent = "還沒上班，睡覺時間";
+  } else if (roundedPercent >= 100) {
+    workProgressTextEl.textContent = "包一包回家了";
+  } else if (roundedPercent >= 90) {
+    workProgressTextEl.textContent = "快下班了，尿尿時間";
+  } else if (roundedPercent >= 50) {
+    workProgressTextEl.textContent = "一半了，睡午覺時間";
+  } else {
+    workProgressTextEl.textContent = "08:00 開始，17:00 滿格";
+  }
+}
+
 function updateCountdown() {
   const now = new Date();
   const currentHours = now.getHours();
@@ -132,6 +162,7 @@ function updateCountdown() {
 
   applyThemeByTime(now);
   updatePhotoByTime(now);
+  updateWorkProgress(now);
 
   const workStart = getTodayAt(8, 0, 0, 0);
   const lunchStart = getTodayAt(12, 0, 0, 0);
